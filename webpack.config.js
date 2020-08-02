@@ -1,5 +1,7 @@
 const { resolve } = require("path");
 const WebpackReactComponentNamePlugin = require("./webpack-react-component-name");
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   entry: resolve(__dirname, "src/index.js"),
@@ -7,7 +9,21 @@ module.exports = {
     path: resolve(__dirname, "bin"),
     filename: "bundle.js"
   },
-  plugins: [new WebpackReactComponentNamePlugin()],
+  devServer: {
+    https: true,
+    disableHostCheck: true,
+    contentBase: path.join(__dirname, 'dist'),
+    // compress: true,
+    writeToDisk: true,
+    historyApiFallback: true,
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'template.html',
+      filename: 'index.html',
+    }),
+    new WebpackReactComponentNamePlugin()
+  ],
   module: {
     rules: [
       {

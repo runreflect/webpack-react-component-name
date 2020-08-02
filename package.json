@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "watch": "webpack-dev-server --hot --inline --progress --colors",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack"
   },
@@ -25,7 +26,8 @@
     "acorn-walk": "^7.2.0",
     "babel-loader": "^8.1.0",
     "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
     "core-js": "^2.5.7",

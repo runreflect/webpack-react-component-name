@@ -13,3 +13,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+Footer.displayName = 'FooterCustomTwo'

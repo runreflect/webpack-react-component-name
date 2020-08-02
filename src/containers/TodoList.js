@@ -119,3 +119,5 @@ export default function TodoList() {
     </React.Fragment>
   );
 }
+
+TodoList.displayName = 'TodoListCustomTwo'

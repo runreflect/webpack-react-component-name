@@ -28,7 +28,7 @@ class WebpackReactComponentNamePlugin {
             CallExpression(node, ancestors) {
               if (node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'createClass') {
                 // console.log('found it', node)
-                var dep = new ConstDependency('this.displayName = "cool";', JSON.stringify("cool"));
+                var dep = new ConstDependency('this.displayName = "cool";', node.range)
                 dep.loc = node.loc;
                 parser.state.current.addDependency(dep);
               }
@@ -37,7 +37,8 @@ class WebpackReactComponentNamePlugin {
             CallExpression(node, ancestors) {
               if (node.callee && node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'createElement') {
                 console.log('found 3', node)
-                var dep = new ConstDependency('this.displayName = "cool";', JSON.stringify("cool"));
+                //TODO range is wrong.
+                var dep = new ConstDependency('this.displayName = "cool";', "") // node.range
                 dep.loc = node.loc;
                 parser.state.current.addDependency(dep);
                 //TODO then walk up ancestors to find function / etc that it's defining

@@ -14,7 +14,6 @@ import useTodos from "../reducers/useTodos";
 // })
 
 export default function TodoItem({ todo }) {
-  this.displayName = 'lalala'
   const [, { deleteTodo, setLabel, toggleDone }] = useTodos(() => null);
 
   const [editing, setEditing] = useState(false);
@@ -66,3 +65,5 @@ export default function TodoItem({ todo }) {
     </li>
   );
 }
+
+TodoItem.displayName = 'TodoItemCustomTwo'
