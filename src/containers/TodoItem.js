@@ -5,13 +5,13 @@ import useDoubleClick from "../hooks/useDoubleClick";
 import useOnEnter from "../hooks/useOnEnter";
 import useTodos from "../reducers/useTodos";
 
-const FooThing = React.createClass({
-  render() {
-    return (
-      <div></div>
-    );
-  }
-})
+// const FooThing = React.createClass({
+//   render() {
+//     return (
+//       <div></div>
+//     );
+//   }
+// })
 
 export default function TodoItem({ todo }) {
   this.displayName = 'lalala'
