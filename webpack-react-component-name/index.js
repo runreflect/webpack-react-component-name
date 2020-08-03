@@ -1,10 +1,11 @@
 const walk = require("acorn-walk")
-// const ConstDependency = require('webpack/lib/dependencies/ConstDependency')
-const MagicString = require('magic-string')
-// const BasicEvaluatedExpression = require("../javascript/BasicEvaluatedExpression")
 const ModuleAppenderDependency = require('./ModuleAppenderDependency')
-// console.log(walk)
 
+// Docs on the 'ESTree' format: 
+// - https://github.com/estree/estree
+// - https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
+//
+// Example of how to modify the AST taken from https://github.com/webpack/webpack/blob/fde018300aa52262c384e937c408d5dd97d62951/lib/UseStrictPlugin.js#L15
 class WebpackReactComponentNamePlugin {
   constructor(options) {
     this.options = options
@@ -18,7 +19,7 @@ class WebpackReactComponentNamePlugin {
 				compilation.dependencyTemplates.set(
 					ModuleAppenderDependency,
 					new ModuleAppenderDependency.Template()
-        );
+        )
       }
     )
 
@@ -32,14 +33,24 @@ class WebpackReactComponentNamePlugin {
             return
           }
 
-          // console.log(parser.state.current.originalSource())
           const source = parser.state.current.originalSource()._value
 
-          walk.ancestor(ast, {
-            // React.createClass({})
-            CallExpression(node, ancestors) {
+          walk.simple(ast, {
+            // Matches: const Foo extends React.Component
+            VariableDeclarator(node) {
+              if (node.id && node.id.type === 'Identifier' && node.init && node.init.callee && node.init.callee.type === 'FunctionExpression' && node.init.callee.params && node.init.callee.params.length > 0 && node.init.callee.params[0].type === 'Identifier' && node.init.callee.params[0].name === '_React$Component') {
+                const componentName = node.id.name
+                const dep = new ModuleAppenderDependency(`${componentName}.displayName = "${componentName}";`, true) // a single number as second argument is an insert not a replace
+                dep.loc = node.loc
+                parser.state.current.addDependency(dep)
+                // console.log('source', source.substring(node.range[0], node.range[1]))
+              }
+            },
+
+            // Matches: React.createClass({}) - this is no longer supported by React so I'm going to remove this
+            CallExpression(node) {
               if (node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'createClass') {
-                // console.log('found it', node)
+                console.log('found legacy', node)
                 // var dep = new ConstDependency('this.displayName = "cool";', node.range)
                 // dep.loc = node.loc;
                 // parser.state.current.addDependency(dep);
@@ -47,31 +58,8 @@ class WebpackReactComponentNamePlugin {
               }
             },
 
-            // CallExpression(node, ancestors) {
-            //   if (node.callee && node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'createElement') {
-            //     console.log('found 3', node)
-            //     //TODO range is wrong.
-            //     var dep = new ConstDependency('this.displayName = "cool";', "") // node.range
-            //     dep.loc = node.loc;
-            //     parser.state.current.addDependency(dep);
-            //     //TODO then walk up ancestors to find function / etc that it's defining
-            //   }
-            // },
-
+            // Matches: export default function Footer() with returning statement calling React.createElement
             FunctionDeclaration(node) {
-              // it's a function that...
-
-              // isnt async
-
-              // has single param '_ref'... (maybe dont rely on this)
-              // Note: Babel creates this
-              // - https://github.com/algolia/react-instantsearch/issues/1543
-              // - 
-
-              // has a return statement
-          
-              // callee is React createElement
-
               if (node.id.type === 'Identifier' && node.body && node.body.body && node.body.body.filter(thing => thing.type === 'ReturnStatement')) {
                 const returnStatements = node.body.body.filter(thing => thing.type === 'ReturnStatement')
 
@@ -80,53 +68,20 @@ class WebpackReactComponentNamePlugin {
                   if (returnStatement && returnStatement.argument.callee && returnStatement.argument.callee.type == 'MemberExpression' && returnStatement.argument.callee.object.name === 'React' && returnStatement.argument.callee.property.name === 'createElement') {
                     console.log('found 3', node, node.id.name)
                     const componentName = node.id.name
-
-            // console.log(JSON.stringify(ast, null, '\t')/*JSON.stringify(comments, null, '\t')*/)
-                    
-                    var dep = new ModuleAppenderDependency(`${componentName}.displayName = "${componentName}";`) // a single number as second argument is an insert not a replace
-                    // var dep = new ConstDependency("\n" + source.substring(node.range[0], node.range[1]), node.range)
-                    // var dep = new ModuleAppenderDependency()
+ 
+                    const dep = new ModuleAppenderDependency(`${componentName}.displayName = "${componentName}";`, false) // a single number as second argument is an insert not a replace
                     dep.loc = node.loc
                     parser.state.current.addDependency(dep)
-
-                    console.log('slice', source.substring(node.range[0], node.range[1]))
-
-                    // parser.state.current.addVariable("foo", JSON.stringify("toddtest2"))
+                    // console.log('source', source.substring(node.range[0], node.range[1]))
                   }
                 }
               }
             }
           })
 
-          // Docs on the 'ESTree' format: 
-          // - https://github.com/estree/estree
-          // - https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
-
-          // Example of how to modify the AST taken from https://github.com/webpack/webpack/blob/fde018300aa52262c384e937c408d5dd97d62951/lib/UseStrictPlugin.js#L15
-
-          // const dep = new ConstDependency("", firstNode.range);
-          // dep.loc = firstNode.loc;
-          // parser.state.current.addDependency(dep);
-          // parser.state.module.buildInfo.strict = true;
-
-        //  console.log(JSON.stringify(ast, null, '\t'))
         })
       });
     });
-
-    // compiler.hooks.compilation.tap(
-		// 	"WebpackReactComponentNamePlugin",
-		// 	(compilation, { normalModuleFactory }) => {
-    //     console.log('fdfsfsdfds')
-		// 		const handler = parser => {
-    //       console.log("fdsffdfsdfsffs")
-		// 			parser.hooks.program.tap("WebpackReactComponentNamePlugin", ast => {
-    //         console.log(ast)
-    //       })
-    //     }
-    //   }
-    // )
-    
   }
 }
 

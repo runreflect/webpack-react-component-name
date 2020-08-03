@@ -1,24 +1,22 @@
 const NullDependency = require("webpack/lib/dependencies/NullDependency");
 
 class ModuleAppenderDependency extends NullDependency {
-	constructor(expression) {
+	constructor(expression, useLength) {
     super();
-		this.expression = expression;
+    this.expression = expression
+    this.useLength = useLength
 	}
 
 	updateHash(hash) {
 		hash.update(this.expression + "");
-	}
+		hash.update(this.theLength + "");
+  }
 }
 
 ModuleAppenderDependency.Template = class ModuleAppenderDependencyTemplate {
-	apply(dep, source, runtime) {
-    console.log('int ittttt')
-
-    // const concatSource = new ConcatSource()
-    // concatSource.add(source)
-    
-    source.insert(source.length, dep.expression)
+	apply(dep, source) {
+    const length = dep.useLength ? source._source._value.length + 1 : undefined
+    source.insert(length, dep.expression)
   }
 };
 
