@@ -18,4 +18,4 @@ export default function App() {
   );
 }
 
-App.displayName = 'AppCustomTwo'
+// App.displayName = 'AppCustomTwo'

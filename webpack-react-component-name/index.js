@@ -1,6 +1,9 @@
 const walk = require("acorn-walk")
-const ConstDependency = require('webpack/lib/dependencies/ConstDependency')
-console.log(walk)
+// const ConstDependency = require('webpack/lib/dependencies/ConstDependency')
+const MagicString = require('magic-string')
+// const BasicEvaluatedExpression = require("../javascript/BasicEvaluatedExpression")
+const ModuleAppenderDependency = require('./ModuleAppenderDependency')
+// console.log(walk)
 
 class WebpackReactComponentNamePlugin {
   constructor(options) {
@@ -8,6 +11,16 @@ class WebpackReactComponentNamePlugin {
   }
   apply(compiler) {
     console.log("FROM WebpackReactComponentNamePlugin PLUGIN")
+
+		compiler.hooks.compilation.tap(
+			"WebpackReactComponentNamePlugin",
+			(compilation, { contextModuleFactory, normalModuleFactory }) => {
+				compilation.dependencyTemplates.set(
+					ModuleAppenderDependency,
+					new ModuleAppenderDependency.Template()
+        );
+      }
+    )
 
     compiler.hooks.normalModuleFactory.tap('WebpackReactComponentNamePlugin', factory => {
       factory.hooks.parser.for('javascript/auto').tap('WebpackReactComponentNamePlugin', (parser, options) => {
@@ -19,58 +32,70 @@ class WebpackReactComponentNamePlugin {
             return
           }
 
-          // if (parser.state.current.resource.indexOf("Text.js") !== -1) {
-          //   console.log(JSON.stringify(ast, null, '\t')/*JSON.stringify(comments, null, '\t')*/)
-          // }
+          // console.log(parser.state.current.originalSource())
+          const source = parser.state.current.originalSource()._value
 
           walk.ancestor(ast, {
             // React.createClass({})
             CallExpression(node, ancestors) {
               if (node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'createClass') {
                 // console.log('found it', node)
-                var dep = new ConstDependency('this.displayName = "cool";', node.range)
-                dep.loc = node.loc;
-                parser.state.current.addDependency(dep);
+                // var dep = new ConstDependency('this.displayName = "cool";', node.range)
+                // dep.loc = node.loc;
+                // parser.state.current.addDependency(dep);
+                // parser.state.current.addVariable("foo", JSON.stringify("toddtest"))
               }
             },
 
-            CallExpression(node, ancestors) {
-              if (node.callee && node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'createElement') {
-                console.log('found 3', node)
-                //TODO range is wrong.
-                var dep = new ConstDependency('this.displayName = "cool";', "") // node.range
-                dep.loc = node.loc;
-                parser.state.current.addDependency(dep);
-                //TODO then walk up ancestors to find function / etc that it's defining
-              }
-            },
-
-            // FunctionDeclaration(node) {
-            //   // it's a function that...
-
-            //   // isnt async
-
-            //   // has single param '_ref'... (maybe dont rely on this)
-            //   // Note: Babel creates this
-            //   // - https://github.com/algolia/react-instantsearch/issues/1543
-            //   // - 
-
-            //   // has a return statement
-          
-            //   // callee is React createElement
-
-
-            //   if (node.id.type === 'Identifier' && node.body && node.body.body && node.body.body.filter(thing => thing.type === 'ReturnStatement')) {
-            //     const returnStatements = node.body.body.filter(thing => thing.type === 'ReturnStatement')
-
-            //     if (returnStatements.length > 0) {
-            //       const returnStatement = returnStatements[0]
-            //       if (returnStatement && returnStatement.argument.callee && returnStatement.argument.callee.type == 'MemberExpression' && returnStatement.argument.callee.object.name === 'React' && returnStatement.argument.callee.property.name === 'createElement') {
-            //         console.log('found 3', returnStatement)
-            //       }
-            //     }
+            // CallExpression(node, ancestors) {
+            //   if (node.callee && node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'createElement') {
+            //     console.log('found 3', node)
+            //     //TODO range is wrong.
+            //     var dep = new ConstDependency('this.displayName = "cool";', "") // node.range
+            //     dep.loc = node.loc;
+            //     parser.state.current.addDependency(dep);
+            //     //TODO then walk up ancestors to find function / etc that it's defining
             //   }
-            // }
+            // },
+
+            FunctionDeclaration(node) {
+              // it's a function that...
+
+              // isnt async
+
+              // has single param '_ref'... (maybe dont rely on this)
+              // Note: Babel creates this
+              // - https://github.com/algolia/react-instantsearch/issues/1543
+              // - 
+
+              // has a return statement
+          
+              // callee is React createElement
+
+              if (node.id.type === 'Identifier' && node.body && node.body.body && node.body.body.filter(thing => thing.type === 'ReturnStatement')) {
+                const returnStatements = node.body.body.filter(thing => thing.type === 'ReturnStatement')
+
+                if (returnStatements.length > 0) {
+                  const returnStatement = returnStatements[0]
+                  if (returnStatement && returnStatement.argument.callee && returnStatement.argument.callee.type == 'MemberExpression' && returnStatement.argument.callee.object.name === 'React' && returnStatement.argument.callee.property.name === 'createElement') {
+                    console.log('found 3', node, node.id.name)
+                    const componentName = node.id.name
+
+            // console.log(JSON.stringify(ast, null, '\t')/*JSON.stringify(comments, null, '\t')*/)
+                    
+                    var dep = new ModuleAppenderDependency(`${componentName}.displayName = "${componentName}";`) // a single number as second argument is an insert not a replace
+                    // var dep = new ConstDependency("\n" + source.substring(node.range[0], node.range[1]), node.range)
+                    // var dep = new ModuleAppenderDependency()
+                    dep.loc = node.loc
+                    parser.state.current.addDependency(dep)
+
+                    console.log('slice', source.substring(node.range[0], node.range[1]))
+
+                    // parser.state.current.addVariable("foo", JSON.stringify("toddtest2"))
+                  }
+                }
+              }
+            }
           })
 
           // Docs on the 'ESTree' format: 

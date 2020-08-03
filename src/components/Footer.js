@@ -14,4 +14,4 @@ export default function Footer() {
   );
 }
 
-Footer.displayName = 'FooterCustomTwo'
+// Footer.displayName = 'FooterCustomTwo'
