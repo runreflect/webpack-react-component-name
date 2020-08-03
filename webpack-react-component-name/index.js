@@ -13,12 +13,12 @@ class WebpackReactComponentNamePlugin {
   apply(compiler) {
     console.log("FROM WebpackReactComponentNamePlugin PLUGIN")
 
-		compiler.hooks.compilation.tap(
-			"WebpackReactComponentNamePlugin",
-			(compilation, { contextModuleFactory, normalModuleFactory }) => {
-				compilation.dependencyTemplates.set(
-					ModuleAppenderDependency,
-					new ModuleAppenderDependency.Template()
+    compiler.hooks.compilation.tap(
+      "WebpackReactComponentNamePlugin",
+      (compilation, { contextModuleFactory, normalModuleFactory }) => {
+        compilation.dependencyTemplates.set(
+          ModuleAppenderDependency,
+          new ModuleAppenderDependency.Template()
         )
       }
     )
@@ -40,7 +40,7 @@ class WebpackReactComponentNamePlugin {
             VariableDeclarator(node) {
               if (node.id && node.id.type === 'Identifier' && node.init && node.init.callee && node.init.callee.type === 'FunctionExpression' && node.init.callee.params && node.init.callee.params.length > 0 && node.init.callee.params[0].type === 'Identifier' && node.init.callee.params[0].name === '_React$Component') {
                 const componentName = node.id.name
-                const dep = new ModuleAppenderDependency(`${componentName}.displayName = "${componentName}";`, true) // a single number as second argument is an insert not a replace
+                const dep = new ModuleAppenderDependency(`${componentName}.displayName = "${componentName}";`, true)
                 dep.loc = node.loc
                 parser.state.current.addDependency(dep)
                 // console.log('source', source.substring(node.range[0], node.range[1]))
@@ -68,8 +68,8 @@ class WebpackReactComponentNamePlugin {
                   if (returnStatement && returnStatement.argument.callee && returnStatement.argument.callee.type == 'MemberExpression' && returnStatement.argument.callee.object.name === 'React' && returnStatement.argument.callee.property.name === 'createElement') {
                     console.log('found 3', node, node.id.name)
                     const componentName = node.id.name
- 
-                    const dep = new ModuleAppenderDependency(`${componentName}.displayName = "${componentName}";`, false) // a single number as second argument is an insert not a replace
+
+                    const dep = new ModuleAppenderDependency(`${componentName}.displayName = "${componentName}";`, false)
                     dep.loc = node.loc
                     parser.state.current.addDependency(dep)
                     // console.log('source', source.substring(node.range[0], node.range[1]))
