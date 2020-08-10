@@ -14,7 +14,7 @@ Tools extension to determine the name of a component.
 
 Since we emit a `displayName` property value for each React component definition
 (critically, **not** every React component *instance*), using this plugin will
-result in a small increase to your production bundles.
+result in a small size increase to your production bundles.
 
 ## Installation
 
