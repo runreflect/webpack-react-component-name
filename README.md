@@ -39,6 +39,10 @@ plugin attempts to detect every possible way of defining a component, but there 
 be some we've missed.  See the `/examples` directory and the unit tests for examples
 of the different permutations of React component definitions that we currently support.
 
+If we are not detecting one of your components, please either file an Issue containing
+example source for a component which is not detected, or feel free to open a PR with
+the fix.
+
 ## License
 
 This project is licensed under the terms of the MIT license.
