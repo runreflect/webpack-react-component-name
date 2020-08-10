@@ -4,11 +4,16 @@ const ModuleAppenderDependency = require('./lib/module-appender')
 // Keep track of the nodes we update so we don't make duplicate updates
 const updatedNodes = new Set()
 
-// Docs on the 'ESTree' format: 
-// - https://github.com/estree/estree
-// - https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
+// Normally React component names are minified during compilation.  This plugin
+// makes these component names available in production bundles by hooking into
+// Webpack's compilation process, traversing the AST looking for React component
+// definitions, and updating the emitted source code to populate the 
+// displayName property.  This is the property that, when populated, is used by the React Dev
+// Tools extension to determine the name of a component.
 //
-// Example of how to modify the AST taken from https://github.com/webpack/webpack/blob/fde018300aa52262c384e937c408d5dd97d62951/lib/UseStrictPlugin.js#L15
+// For more information on the AST format and API, see:
+// https://github.com/estree/estree
+// https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
 class WebpackReactComponentNamePlugin {
   constructor(options) {
     this.options = options
