@@ -57,6 +57,22 @@ describe('WebpackReactComponentNamePlugin', () => {
     expect(numDisplayNameProperties).toEqual(4)
   })
 
+  it('generates displayName for components defined via anonymous function (variation 3)', async () => {
+    const result = await utils.testWebpackPlugin(_.merge(constants.ANON_FUNC3_WEBPACK_CONFIG, {
+      plugins: [new WebpackReactComponentNamePlugin()],
+    }))
+
+    const minifiedSource = result.compilation.assets[constants.ANON_FUNC3_WEBPACK_CONFIG.output.filename]._value
+
+    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+    expect(minifiedSource).toContain('.displayName="App"')
+    expect(minifiedSource).toContain('.displayName="Root"')
+    expect(minifiedSource).toContain('.displayName="List"')
+    expect(minifiedSource).toContain('.displayName="Detail"')
+    expect(numDisplayNameProperties).toEqual(6)
+  })
+
   it('generates displayName for components defined via class', async () => {
     const result = await utils.testWebpackPlugin  (_.merge(constants.CLASS_COMPONENT_WEBPACK_CONFIG, {
       plugins: [new WebpackReactComponentNamePlugin()],
@@ -111,5 +127,33 @@ describe('WebpackReactComponentNamePlugin', () => {
     expect(minifiedSource).toContain('.displayName="App"')
     expect(minifiedSource).toContain('.displayName="UIButton"')
     expect(numDisplayNameProperties).toEqual(4)
+  })
+
+  it('generates displayName for components extending JSXElement', async () => {
+    const result = await utils.testWebpackPlugin(_.merge(constants.JSXELEMENT_WEBPACK_CONFIG, {
+      plugins: [new WebpackReactComponentNamePlugin()],
+    }))
+
+    const minifiedSource = result.compilation.assets[constants.JSXELEMENT_WEBPACK_CONFIG.output.filename]._value
+
+    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+    expect(minifiedSource).toContain('.displayName="App"')
+    expect(minifiedSource).toContain('.displayName="AdminTextSetting"')
+    expect(minifiedSource).toContain('.displayName="TextSetting"')
+    expect(numDisplayNameProperties).toEqual(5)
+  })
+
+  it('parses and ignores files that do not include React component definitions', async () => {
+    const result = await utils.testWebpackPlugin(_.merge(constants.PARSE_TESTS_WEBPACK_CONFIG, {
+      plugins: [new WebpackReactComponentNamePlugin()],
+    }))
+
+    const minifiedSource = result.compilation.assets[constants.PARSE_TESTS_WEBPACK_CONFIG.output.filename]._value
+
+    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+    expect(minifiedSource).toContain('.displayName="App"')
+    expect(numDisplayNameProperties).toEqual(11)
   })
 })

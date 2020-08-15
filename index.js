@@ -4,6 +4,8 @@ const ModuleAppenderDependency = require('./lib/module-appender')
 // Keep track of the nodes we update so we don't make duplicate updates
 const updatedNodes = new Set()
 
+const VALID_FILE_SUFFIXES_REGEX = /\.(js|jsx|ts|tsx)$/
+
 // Normally React component names are minified during compilation.  This plugin
 // makes these component names available in production bundles by hooking into
 // Webpack's compilation process, traversing the AST looking for React component
@@ -34,7 +36,7 @@ class WebpackReactComponentNamePlugin {
         parser.hooks.program.tap("WebpackReactComponentNamePlugin", ast => {
 
           // Ignore dependency files
-          if (parser.state.current.resource == null || parser.state.current.resource.indexOf("node_modules") !== -1) {
+          if (parser.state.current.resource == null || parser.state.current.resource.indexOf("node_modules") !== -1 || !VALID_FILE_SUFFIXES_REGEX.test(parser.state.current.resource.toLowerCase())) {
             return
           }
 
@@ -42,24 +44,26 @@ class WebpackReactComponentNamePlugin {
             VariableDeclarator(node) {
               // Matches: const Foo extends React._ or import _ from React; const Foo extends _
               if (
+                node &&
                 node.id &&
                 node.id.type === 'Identifier' &&
                 node.init && node.init.callee && 
                 node.init.callee.type === 'FunctionExpression' &&
-                node.init.callee.params && node.init.callee.params.length > 0 &&
+                node.init.callee.params &&
+                node.init.callee.params.length > 0 &&
                 node.init.callee.params[0].type === 'Identifier' && ['_React$Component', '_Component', '_React$PureComponent', '_PureComponent'].includes(node.init.callee.params[0].name)
               ) {
-                addDisplayName(parser, node, true)
+                addDisplayName(parser, node)
               }
             },
 
             CallExpression(node, ancestors) {
               // Matches: const Foo = React.forwardRef((props, ref) => { .. }
-              if (node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'forwardRef') {
+              if (node && node.callee && node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'forwardRef') {
                 const variableDeclarator = ancestors.find(ancestor => ancestor.type === 'VariableDeclarator')
 
                 if (variableDeclarator) {
-                  addDisplayName(parser, variableDeclarator, true)
+                  addDisplayName(parser, variableDeclarator)
                 }
               }
               // Matches when function returns JSX/React.createElement()
@@ -75,17 +79,14 @@ class WebpackReactComponentNamePlugin {
               ) {
                 const parentAncestor = ancestors[ancestors.length - 2]
 
-                if (parentAncestor.type === 'ReturnStatement') {
+                if (parentAncestor && ['ReturnStatement', 'ArrowFunctionExpression'].includes(parentAncestor.type)) {
+                  // ArrowFunctionExpression is present when no Babel plugins are used when transforming JSX
                 
                   const variableDeclaratorIdx = ancestors.findIndex(ancestor => ancestor.type === 'VariableDeclarator')
 
                   if (variableDeclaratorIdx != -1) {
                     const variableDeclarator = ancestors[variableDeclaratorIdx]
-
-                    // Determines the location where we'll save the propertyName
-                    const useLength = ancestors[variableDeclaratorIdx + 1] && ancestors[variableDeclaratorIdx + 1].type !== 'FunctionExpression'
-
-                    addDisplayName(parser, variableDeclarator, useLength)
+                    addDisplayName(parser, variableDeclarator)
                   }
                 }
               }
@@ -93,7 +94,7 @@ class WebpackReactComponentNamePlugin {
 
             FunctionDeclaration(node) {
               // Matches: export default function Foo() with returning statement calling React.createElement
-              if (node.id.type === 'Identifier' && node.body && node.body.body && node.body.body.filter(thing => thing.type === 'ReturnStatement')) {
+              if (node && node.id && node.id.type === 'Identifier' && node.body && node.body.body && node.body.body.filter(thing => thing.type === 'ReturnStatement')) {
                 const returnStatements = node.body.body.filter(thing => thing.type === 'ReturnStatement')
 
                 if (returnStatements.length > 0) {
@@ -102,14 +103,39 @@ class WebpackReactComponentNamePlugin {
                     returnStatement &&
                     returnStatement.argument.callee &&
                     returnStatement.argument.callee.type == 'MemberExpression' &&
+                    returnStatement.argument.callee.object &&
                     returnStatement.argument.callee.object.name === 'React' &&
+                    returnStatement.argument.callee.property &&
                     returnStatement.argument.callee.property.name === 'createElement'
                   ) {
-                    addDisplayName(parser, node, false)
+                    addDisplayName(parser, node)
                   }
                 }
               }
+            },
+
+            ClassDeclaration(node) {
+              // Matches: export default class Foo extends _
+              if (
+                node &&
+                node.id &&
+                node.id.type === 'Identifier' &&
+                node.superClass &&
+                node.superClass.object &&
+                node.superClass.object.type === 'Identifier' &&
+                node.superClass.object.name === 'React' &&
+                node.superClass.property &&
+                node.superClass.property.type === 'Identifier' &&
+                ['Component', 'PureComponent'].includes(node.superClass.property.name)
+              ) {
+                addDisplayName(parser, node)
+              }
             }
+          },
+          {
+            ...walk.base,
+            // Add any objects that acorn-walk doesn't handle by default and thus would throw a ModuleParseError otherwise
+            Import: () => {}
           })
         })
       })
@@ -117,13 +143,18 @@ class WebpackReactComponentNamePlugin {
   }
 }
 
-function addDisplayName(parser, node, useLength) {
+function addDisplayName(parser, node) {
   if (updatedNodes.has(node)) {
     return // Already added propertyName for this node
   }
   
   const componentName = node.id.name
-  const dep = new ModuleAppenderDependency(`${componentName}.displayName = "${componentName}";`, useLength)
+
+  if (componentName[0] == componentName[0].toLowerCase()) {
+    return // Assume lowercase names are helper functions and not Component classes 
+  }
+
+  const dep = new ModuleAppenderDependency(`;${componentName}.displayName = "${componentName}";`, node.range)
   dep.loc = node.loc
   parser.state.current.addDependency(dep)
 
