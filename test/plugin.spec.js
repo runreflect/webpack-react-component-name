@@ -156,4 +156,20 @@ describe('WebpackReactComponentNamePlugin', () => {
     expect(minifiedSource).toContain('.displayName="App"')
     expect(numDisplayNameProperties).toEqual(11)
   })
+
+  it('detects memoized React components', async () => {
+    const result = await utils.testWebpackPlugin(_.merge(constants.MEMOIZED_WEBPACK_CONFIG, {
+      plugins: [new WebpackReactComponentNamePlugin()],
+    }))
+
+    const minifiedSource = result.compilation.assets[constants.MEMOIZED_WEBPACK_CONFIG.output.filename]._value
+
+    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+    expect(minifiedSource).toContain('.displayName="App"')
+    expect(minifiedSource).toContain('.displayName="Button"')
+    expect(minifiedSource).toContain('.displayName="MemoizedButton"')
+    expect(minifiedSource).toContain('.displayName="MemoizedButton2"')
+    expect(numDisplayNameProperties).toEqual(6)
+  })
 })

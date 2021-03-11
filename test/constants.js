@@ -119,6 +119,16 @@ exports.JSXELEMENT_WEBPACK_CONFIG = {
   module: MODULE_CONFIG
 }
 
+exports.MEMOIZED_WEBPACK_CONFIG = {
+  mode: PRODUCTION_MODE,
+  entry: path.join(__dirname, '../examples/memo/src/index.js'),
+  output: {
+    path: OUTPUT_DIR,
+    filename: 'memoizedbundle.js'
+  },
+  module: MODULE_CONFIG
+}
+
 exports.PARSE_TESTS_WEBPACK_CONFIG = {
   mode: PRODUCTION_MODE,
   entry: path.join(__dirname, '../examples/parsetests/src/index.js'),
