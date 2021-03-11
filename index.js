@@ -73,7 +73,7 @@ class WebpackReactComponentNamePlugin {
                 node.callee.object &&
                 node.callee.object.name === 'React' &&
                 node.callee.property &&
-                node.callee.property.name === 'createElement'
+                ['createElement', 'memo'].includes(node.callee.property.name)
                 && ancestors
                 && ancestors.length > 1
               ) {
@@ -88,6 +88,8 @@ class WebpackReactComponentNamePlugin {
                     const variableDeclarator = ancestors[variableDeclaratorIdx]
                     addDisplayName(parser, variableDeclarator)
                   }
+                } else if (parentAncestor && parentAncestor.type === 'VariableDeclarator') {
+                  addDisplayName(parser, parentAncestor)
                 }
               }
             },
