@@ -78,7 +78,6 @@ exports.ANON_FUNC3_WEBPACK_CONFIG = {
   module: MODULE2_CONFIG
 }
 
-
 exports.CLASS_COMPONENT_WEBPACK_CONFIG = {
   mode: PRODUCTION_MODE,
   entry: path.join(__dirname, '../examples/classcomponent/src/index.js'),
@@ -95,6 +94,16 @@ exports.DEFAULT_FUNC_WEBPACK_CONFIG = {
   output: {
     path: OUTPUT_DIR,
     filename: 'defaultfuncbundle.js'
+  },
+  module: MODULE_CONFIG
+}
+
+exports.DEFAULT_FUNC2_WEBPACK_CONFIG = {
+  mode: PRODUCTION_MODE,
+  entry: path.join(__dirname, '../examples/defaultfunc2/src/index.js'),
+  output: {
+    path: OUTPUT_DIR,
+    filename: 'defaultfunc2bundle.js'
   },
   module: MODULE_CONFIG
 }
@@ -135,6 +144,24 @@ exports.PARSE_TESTS_WEBPACK_CONFIG = {
   output: {
     path: OUTPUT_DIR,
     filename: 'parsetestsbundle.js'
+  },
+  module: MODULE_CONFIG
+}
+
+exports.PREACT_TESTS_WEBPACK_CONFIG = {
+  mode: PRODUCTION_MODE,
+  entry: path.join(__dirname, '../examples/preact/src/index.js'),
+  output: {
+    path: OUTPUT_DIR,
+    filename: 'preactbundle.js'
+  },
+  resolve: {
+    symlinks: false,
+    alias: {
+      react: 'preact/compat',
+      'react-dom': 'preact/compat'
+    },
+    extensions: ['.mjs', '.js', '.jsx']
   },
   module: MODULE_CONFIG
 }
