@@ -101,6 +101,20 @@ describe('WebpackReactComponentNamePlugin', () => {
     expect(numDisplayNameProperties).toEqual(4)
   })
 
+  it('generates displayName for components defined as default function (variation 2)', async () => {
+    const result = await utils.testWebpackPlugin(_.merge(constants.DEFAULT_FUNC2_WEBPACK_CONFIG, {
+      plugins: [new WebpackReactComponentNamePlugin()],
+    }))
+
+    const minifiedSource = result.compilation.assets[constants.DEFAULT_FUNC2_WEBPACK_CONFIG.output.filename]._value
+
+    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+    expect(minifiedSource).toContain('.displayName="App"')
+    expect(minifiedSource).toContain('.displayName="Foo"')
+    expect(numDisplayNameProperties).toEqual(5)
+  })
+
   it('generates displayName for components defined as forward ref', async () => {
     const result = await utils.testWebpackPlugin(_.merge(constants.FORWARD_REF_WEBPACK_CONFIG, {
       plugins: [new WebpackReactComponentNamePlugin()],
@@ -171,5 +185,20 @@ describe('WebpackReactComponentNamePlugin', () => {
     expect(minifiedSource).toContain('.displayName="MemoizedButton"')
     expect(minifiedSource).toContain('.displayName="MemoizedButton2"')
     expect(numDisplayNameProperties).toEqual(6)
+  })
+
+  it('handles Preact app', async () => {
+    const result = await utils.testWebpackPlugin(_.merge(constants.PREACT_TESTS_WEBPACK_CONFIG, {
+      plugins: [new WebpackReactComponentNamePlugin()],
+    }))
+
+    const minifiedSource = result.compilation.assets[constants.PREACT_TESTS_WEBPACK_CONFIG.output.filename]._value
+
+    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+    expect(minifiedSource).toContain('.displayName="App"')
+    expect(minifiedSource).toContain('.displayName="TodoFooter"')
+    expect(minifiedSource).toContain('.displayName="TodoItem"')
+    expect(numDisplayNameProperties).toEqual(3)
   })
 })
