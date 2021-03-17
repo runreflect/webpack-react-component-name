@@ -34,7 +34,6 @@ class WebpackReactComponentNamePlugin {
     compiler.hooks.normalModuleFactory.tap('WebpackReactComponentNamePlugin', factory => {
       factory.hooks.parser.for('javascript/auto').tap('WebpackReactComponentNamePlugin', parser => {
         parser.hooks.program.tap("WebpackReactComponentNamePlugin", ast => {
-
           // Ignore dependency files
           if (parser.state.current.resource == null || parser.state.current.resource.indexOf("node_modules") !== -1 || !VALID_FILE_SUFFIXES_REGEX.test(parser.state.current.resource.toLowerCase())) {
             return
@@ -59,7 +58,13 @@ class WebpackReactComponentNamePlugin {
 
             CallExpression(node, ancestors) {
               // Matches: const Foo = React.forwardRef((props, ref) => { .. }
-              if (node && node.callee && node.callee.type == 'MemberExpression' && node.callee.object.name === 'React' && node.callee.property.name === 'forwardRef') {
+              if (
+                node &&
+                node.callee &&
+                node.callee.type == 'MemberExpression' &&
+                node.callee.object.name === 'React' &&
+                node.callee.property.name === 'forwardRef'
+              ) {
                 const variableDeclarator = ancestors.find(ancestor => ancestor.type === 'VariableDeclarator')
 
                 if (variableDeclarator) {
@@ -68,6 +73,7 @@ class WebpackReactComponentNamePlugin {
               }
               // Matches when function returns JSX/React.createElement()
               else if (
+                node &&
                 node.callee &&
                 node.callee.type === 'MemberExpression' &&
                 node.callee.object &&
@@ -104,11 +110,15 @@ class WebpackReactComponentNamePlugin {
                   if (
                     returnStatement &&
                     returnStatement.argument.callee &&
-                    returnStatement.argument.callee.type == 'MemberExpression' &&
-                    returnStatement.argument.callee.object &&
-                    returnStatement.argument.callee.object.name === 'React' &&
-                    returnStatement.argument.callee.property &&
-                    returnStatement.argument.callee.property.name === 'createElement'
+                    argumentCreatesElement(returnStatement.argument.callee)
+                  ) {
+                    addDisplayName(parser, node)
+                  } else if ( // @emotion/babel-preset-css-prop replacing React.createElement with React.Fragment
+                    returnStatement &&
+                    returnStatement.argument.callee &&
+                    returnStatement.argument.callee.name === '___EmotionJSX' &&
+                    returnStatement.argument.arguments &&
+                    returnStatement.argument.arguments.length > 0
                   ) {
                     addDisplayName(parser, node)
                   }
@@ -143,6 +153,14 @@ class WebpackReactComponentNamePlugin {
       })
     })
   }
+}
+
+function argumentCreatesElement(argument) {
+  return argument.type === 'MemberExpression' &&
+    argument.object &&
+    (argument.name === 'React' || argument.object.name === 'React') &&
+    argument.property &&
+    argument.property.name === 'createElement'
 }
 
 function addDisplayName(parser, node) {
