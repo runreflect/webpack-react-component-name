@@ -3,7 +3,7 @@ const path = require('path')
 const OUTPUT_DIR = path.resolve(__dirname, '../dist/examples')
 
 const PRODUCTION_MODE = 'production'
-const MODULE_CONFIG = {
+const BABEL_CONFIG_WITH_PRESENT_ENV = {
   rules: [
     {
       test: /\.m?js$/,
@@ -13,9 +13,7 @@ const MODULE_CONFIG = {
         options: {
           presets: ["@babel/preset-env", "@babel/preset-react"],
           plugins: [
-            [
-              "@babel/plugin-transform-react-jsx",
-            ],
+            ["@babel/plugin-transform-react-jsx"],
             [
               "@babel/plugin-proposal-class-properties",
               {
@@ -33,7 +31,9 @@ const MODULE_CONFIG = {
   ]
 }
 
-const MODULE2_CONFIG = {
+exports.DEFAULT_BABEL_CONFIG = BABEL_CONFIG_WITH_PRESENT_ENV
+
+const BABEL_CONFIG_WITHOUT_PRESENT_ENV = {
   rules: [
     {
       test: /\.js?$/,
@@ -42,11 +42,59 @@ const MODULE2_CONFIG = {
         loader: 'babel-loader',
         options: {
           presets: ["@babel/preset-react"],
+          plugins: [
+            ["@babel/plugin-transform-react-jsx"],
+            [
+              "@babel/plugin-proposal-class-properties",
+              {
+                "loose": true
+              }
+            ]
+          ]
         },
       }
+    },
+    {
+      test: /\.css$/i,
+      use: ['style-loader', 'css-loader'],
     }
   ]
 }
+
+const BABEL_CONFIG_WITH_EMOTIONJS_PRESET = {
+  rules: [
+    {
+      test: /\.jsx?$/,
+      exclude: /node_modules*$/,
+      loader: 'babel-loader',
+      options: {
+        presets: [
+          '@babel/preset-react',
+          '@emotion/babel-preset-css-prop'
+        ],
+        plugins: [
+          ["@babel/plugin-transform-react-jsx"],
+          [
+            "@babel/plugin-proposal-class-properties",
+            {
+              "loose": true
+            }
+          ]
+        ]
+      }
+    },
+    {
+      test: /\.css$/i,
+      use: ['style-loader', 'css-loader'],
+    }
+  ]
+}
+
+exports.BABEL_LOADER_CONFIGS = [
+  BABEL_CONFIG_WITH_PRESENT_ENV,
+  BABEL_CONFIG_WITHOUT_PRESENT_ENV,
+  BABEL_CONFIG_WITH_EMOTIONJS_PRESET,
+]
 
 exports.ANON_FUNC_WEBPACK_CONFIG = {
   mode: PRODUCTION_MODE,
@@ -55,7 +103,6 @@ exports.ANON_FUNC_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'anonfuncbundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.ANON_FUNC2_WEBPACK_CONFIG = {
@@ -65,7 +112,6 @@ exports.ANON_FUNC2_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'anonfunc2bundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.ANON_FUNC3_WEBPACK_CONFIG = {
@@ -75,7 +121,6 @@ exports.ANON_FUNC3_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'anonfunc3bundle.js'
   },
-  module: MODULE2_CONFIG
 }
 
 exports.CLASS_COMPONENT_WEBPACK_CONFIG = {
@@ -85,7 +130,6 @@ exports.CLASS_COMPONENT_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'classcomponentbundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.DEFAULT_FUNC_WEBPACK_CONFIG = {
@@ -95,7 +139,6 @@ exports.DEFAULT_FUNC_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'defaultfuncbundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.DEFAULT_FUNC2_WEBPACK_CONFIG = {
@@ -105,7 +148,6 @@ exports.DEFAULT_FUNC2_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'defaultfunc2bundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.FORWARD_REF_WEBPACK_CONFIG = {
@@ -115,7 +157,6 @@ exports.FORWARD_REF_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'forwardrefbundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.JSXELEMENT_WEBPACK_CONFIG = {
@@ -125,7 +166,6 @@ exports.JSXELEMENT_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'jsxelementbundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.MEMOIZED_WEBPACK_CONFIG = {
@@ -135,7 +175,6 @@ exports.MEMOIZED_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'memoizedbundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.PARSE_TESTS_WEBPACK_CONFIG = {
@@ -145,7 +184,6 @@ exports.PARSE_TESTS_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'parsetestsbundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.PREACT_TESTS_WEBPACK_CONFIG = {
@@ -163,7 +201,6 @@ exports.PREACT_TESTS_WEBPACK_CONFIG = {
     },
     extensions: ['.mjs', '.js', '.jsx']
   },
-  module: MODULE_CONFIG
 }
 
 exports.PURE_COMPONENT_WEBPACK_CONFIG = {
@@ -173,7 +210,6 @@ exports.PURE_COMPONENT_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'purecomponentbundle.js'
   },
-  module: MODULE_CONFIG
 }
 
 exports.TODOMVC_WEBPACK_CONFIG = {
@@ -183,5 +219,4 @@ exports.TODOMVC_WEBPACK_CONFIG = {
     path: OUTPUT_DIR,
     filename: 'todomvcbundle.js'
   },
-  module: MODULE_CONFIG
 }

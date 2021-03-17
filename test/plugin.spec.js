@@ -13,183 +13,185 @@ describe('WebpackReactComponentNamePlugin', () => {
   })
 
   it('generates displayName for components in TodoMVC example', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.TODOMVC_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.TODOMVC_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.TODOMVC_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(result.compilation.dependencyTemplates.get(ModuleAppenderDependency)).toBeDefined()
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="Footer"')
+      expect(minifiedSource).toContain('.displayName="TodoList"')
+      expect(minifiedSource).toContain('.displayName="TodoItem"')
+      expect(numDisplayNameProperties).toEqual(7) // Components, plus Provider, Consumer, and Router
     }))
-
-    const minifiedSource = result.compilation.assets[constants.TODOMVC_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(result.compilation.dependencyTemplates.get(ModuleAppenderDependency)).toBeDefined()
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="Footer"')
-    expect(minifiedSource).toContain('.displayName="TodoList"')
-    expect(minifiedSource).toContain('.displayName="TodoItem"')
-    expect(numDisplayNameProperties).toEqual(7) // Components, plus Provider, Consumer, and Router
   })
 
   it('generates displayName for components defined via anonymous function (variation 1)', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.ANON_FUNC_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.ANON_FUNC_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.ANON_FUNC_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="Button"')
+      expect(numDisplayNameProperties).toEqual(4)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.ANON_FUNC_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="Button"')
-    expect(numDisplayNameProperties).toEqual(4)
   })
 
   it('generates displayName for components defined via anonymous function (variation 2)', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.ANON_FUNC2_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.ANON_FUNC2_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.ANON_FUNC2_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="Badge"')
+      expect(numDisplayNameProperties).toEqual(4)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.ANON_FUNC2_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="Badge"')
-    expect(numDisplayNameProperties).toEqual(4)
   })
 
   it('generates displayName for components defined via anonymous function (variation 3)', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.ANON_FUNC3_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.ANON_FUNC3_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.ANON_FUNC3_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="Root"')
+      expect(minifiedSource).toContain('.displayName="List"')
+      expect(minifiedSource).toContain('.displayName="Detail"')
+      expect(numDisplayNameProperties).toEqual(6)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.ANON_FUNC3_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="Root"')
-    expect(minifiedSource).toContain('.displayName="List"')
-    expect(minifiedSource).toContain('.displayName="Detail"')
-    expect(numDisplayNameProperties).toEqual(6)
   })
 
   it('generates displayName for components defined via class', async () => {
-    const result = await utils.testWebpackPlugin  (_.merge(constants.CLASS_COMPONENT_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.CLASS_COMPONENT_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.CLASS_COMPONENT_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="ExampleDiv"')
+      expect(numDisplayNameProperties).toEqual(4)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.CLASS_COMPONENT_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="ExampleDiv"')
-    expect(numDisplayNameProperties).toEqual(4)
   })
 
   it('generates displayName for components defined as default function', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.DEFAULT_FUNC_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.DEFAULT_FUNC_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.DEFAULT_FUNC_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="Footer"')
+      expect(numDisplayNameProperties).toEqual(4)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.DEFAULT_FUNC_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="Footer"')
-    expect(numDisplayNameProperties).toEqual(4)
   })
 
   it('generates displayName for components defined as default function (variation 2)', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.DEFAULT_FUNC2_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.DEFAULT_FUNC2_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.DEFAULT_FUNC2_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="Foo"')
+      expect(numDisplayNameProperties).toEqual(5)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.DEFAULT_FUNC2_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="Foo"')
-    expect(numDisplayNameProperties).toEqual(5)
   })
 
   it('generates displayName for components defined as forward ref', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.FORWARD_REF_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.FORWARD_REF_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.FORWARD_REF_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="Dialog"')
+      expect(numDisplayNameProperties).toEqual(4)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.FORWARD_REF_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="Dialog"')
-    expect(numDisplayNameProperties).toEqual(4)
   })
 
   it('generates displayName for components defined as pure component', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.PURE_COMPONENT_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.PURE_COMPONENT_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.PURE_COMPONENT_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="UIButton"')
+      expect(numDisplayNameProperties).toEqual(4)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.PURE_COMPONENT_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="UIButton"')
-    expect(numDisplayNameProperties).toEqual(4)
   })
 
   it('generates displayName for components extending JSXElement', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.JSXELEMENT_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.JSXELEMENT_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.JSXELEMENT_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="AdminTextSetting"')
+      expect(minifiedSource).toContain('.displayName="TextSetting"')
+      expect(numDisplayNameProperties).toEqual(5)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.JSXELEMENT_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="AdminTextSetting"')
-    expect(minifiedSource).toContain('.displayName="TextSetting"')
-    expect(numDisplayNameProperties).toEqual(5)
   })
 
   it('parses and ignores files that do not include React component definitions', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.PARSE_TESTS_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.PARSE_TESTS_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.PARSE_TESTS_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(numDisplayNameProperties).toEqual(11)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.PARSE_TESTS_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(numDisplayNameProperties).toEqual(11)
   })
 
   it('detects memoized React components', async () => {
-    const result = await utils.testWebpackPlugin(_.merge(constants.MEMOIZED_WEBPACK_CONFIG, {
-      plugins: [new WebpackReactComponentNamePlugin()],
+    await Promise.all(generateWebpackConfigs(constants.MEMOIZED_WEBPACK_CONFIG).map(async (webpackConfig) => {
+      const result = await utils.testWebpackPlugin(webpackConfig)
+
+      const minifiedSource = result.compilation.assets[constants.MEMOIZED_WEBPACK_CONFIG.output.filename]._value
+
+      const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+      expect(minifiedSource).toContain('.displayName="App"')
+      expect(minifiedSource).toContain('.displayName="Button"')
+      expect(minifiedSource).toContain('.displayName="MemoizedButton"')
+      expect(minifiedSource).toContain('.displayName="MemoizedButton2"')
+      expect(numDisplayNameProperties).toEqual(6)
     }))
-
-    const minifiedSource = result.compilation.assets[constants.MEMOIZED_WEBPACK_CONFIG.output.filename]._value
-
-    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
-
-    expect(minifiedSource).toContain('.displayName="App"')
-    expect(minifiedSource).toContain('.displayName="Button"')
-    expect(minifiedSource).toContain('.displayName="MemoizedButton"')
-    expect(minifiedSource).toContain('.displayName="MemoizedButton2"')
-    expect(numDisplayNameProperties).toEqual(6)
   })
 
   it('handles Preact app', async () => {
+    // Note that this test only works with one flavor of Babel loader, so we're only testing one here
     const result = await utils.testWebpackPlugin(_.merge(constants.PREACT_TESTS_WEBPACK_CONFIG, {
       plugins: [new WebpackReactComponentNamePlugin()],
+      module: constants.DEFAULT_BABEL_CONFIG,
     }))
 
     const minifiedSource = result.compilation.assets[constants.PREACT_TESTS_WEBPACK_CONFIG.output.filename]._value
@@ -202,3 +204,15 @@ describe('WebpackReactComponentNamePlugin', () => {
     expect(numDisplayNameProperties).toEqual(3)
   })
 })
+
+/**
+ * Returns an array Webpack configs representing each permutation of Babel loader we want to test
+ */
+function generateWebpackConfigs(baseWebpackConfig) {
+  return constants.BABEL_LOADER_CONFIGS.map(babelLoader => {
+    return _.merge(_.cloneDeep(baseWebpackConfig), {
+      plugins: [new WebpackReactComponentNamePlugin()],
+      module: babelLoader,
+    })
+  })
+}
