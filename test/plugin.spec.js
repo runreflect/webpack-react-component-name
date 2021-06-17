@@ -139,7 +139,8 @@ describe('WebpackReactComponentNamePlugin', () => {
 
       expect(minifiedSource).toContain('.displayName="App"')
       expect(minifiedSource).toContain('.displayName="UIButton"')
-      expect(numDisplayNameProperties).toEqual(4)
+      expect(minifiedSource).toContain('.displayName="PureVariantOne"')
+      expect(numDisplayNameProperties).toEqual(5)
     }))
   })
 
