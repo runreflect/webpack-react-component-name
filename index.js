@@ -133,12 +133,20 @@ class WebpackReactComponentNamePlugin {
                 node.id &&
                 node.id.type === 'Identifier' &&
                 node.superClass &&
-                node.superClass.object &&
-                node.superClass.object.type === 'Identifier' &&
-                node.superClass.object.name === 'React' &&
-                node.superClass.property &&
-                node.superClass.property.type === 'Identifier' &&
-                ['Component', 'PureComponent'].includes(node.superClass.property.name)
+                (
+                  (
+                    node.superClass.object &&
+                    node.superClass.object.type === 'Identifier' &&
+                    node.superClass.object.name === 'React' &&
+                    node.superClass.property &&
+                    node.superClass.property.type === 'Identifier' &&
+                    ['Component', 'PureComponent'].includes(node.superClass.property.name)
+                  ) ||
+                  (
+                    node.superClass.type === 'Identifier' &&
+                    ['Component', 'PureComponent'].includes(node.superClass.name)
+                  )
+                )
               ) {
                 addDisplayName(parser, node)
               }
