@@ -182,7 +182,7 @@ function addDisplayName(parser, node) {
     return // Assume lowercase names are helper functions and not Component classes 
   }
 
-  const dep = new ModuleAppenderDependency(`;try{${componentName}.displayName="${componentName}";}catch{}`, node.range)
+  const dep = new ModuleAppenderDependency(`;try{${componentName}.displayName="${componentName}";}catch(e){}`, node.range)
   dep.loc = node.loc
   parser.state.current.addDependency(dep)
 
