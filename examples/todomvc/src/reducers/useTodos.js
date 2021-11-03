@@ -1,4 +1,4 @@
-import { globalReducer } from "react-hook-utils";
+import { globalReducer } from "./globalReducer"
 
 import { guid } from "../utils";
 
