@@ -5,8 +5,8 @@ React components visible within React Dev Tools and accessible by the React
 selector logic built into [Reflect](https://reflect.run).
 
 *Note: This branch contains the version of this plugin that is compatible with
-Webpack 4. For support for later version of Webpack, see
-[https://github.com/runreflect/webpack-react-component-name](https://github.com/runreflect/webpack-react-component-name).*
+Webpack 5. For support for Webpack 4, see version 4.x of this plugin in our 
+[Releases](https://github.com/runreflect/webpack-react-component-name/releases) list.*
 
 Normally React component names are minified during compilation.  This plugin
 makes these component names available in production bundles by hooking into
