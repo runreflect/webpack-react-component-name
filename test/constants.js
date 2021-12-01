@@ -14,6 +14,8 @@ const BABEL_CONFIG_WITH_PRESENT_ENV = {
           presets: ["@babel/preset-env", "@babel/preset-react"],
           plugins: [
             ["@babel/plugin-transform-react-jsx"],
+            ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
+            ["@babel/plugin-proposal-private-methods", { "loose": true }],
             [
               "@babel/plugin-proposal-class-properties",
               {
@@ -44,6 +46,8 @@ const BABEL_CONFIG_WITHOUT_PRESENT_ENV = {
           presets: ["@babel/preset-react"],
           plugins: [
             ["@babel/plugin-transform-react-jsx"],
+            ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
+            ["@babel/plugin-proposal-private-methods", { "loose": true }],
             [
               "@babel/plugin-proposal-class-properties",
               {
@@ -74,6 +78,8 @@ const BABEL_CONFIG_WITH_EMOTIONJS_PRESET = {
         ],
         plugins: [
           ["@babel/plugin-transform-react-jsx"],
+          ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
+          ["@babel/plugin-proposal-private-methods", { "loose": true }],
           [
             "@babel/plugin-proposal-class-properties",
             {

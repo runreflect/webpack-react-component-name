@@ -1,5 +1,6 @@
 const walk = require("acorn-walk")
 const ModuleAppenderDependency = require('./lib/module-appender')
+const PureExpressionDependency = require("webpack/lib/dependencies/PureExpressionDependency")
 
 // Keep track of the nodes we update so we don't make duplicate updates
 const updatedNodes = new Set()
@@ -184,7 +185,7 @@ function addDisplayName(parser, node) {
 
   const dep = new ModuleAppenderDependency(`;try{${componentName}.displayName="${componentName}";}catch(e){}`, node.range)
   dep.loc = node.loc
-  parser.state.current.addDependency(dep)
+  parser.state.module.addDependency(dep)
 
   updatedNodes.add(node)
 }

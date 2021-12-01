@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { NavLink } from "react-router-dom";
-import useRouter from "use-react-router";
+import useRouter from "./use-react-router";
 
 import useInput from "../hooks/useInput";
 import useOnEnter from "../hooks/useOnEnter";

@@ -12,3 +12,6 @@ export default class Root extends React.Component {
     );
   }
 }
+
+const root = document.getElementById("root");
+ReactDOM.render(<App />, root);

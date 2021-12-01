@@ -1,14 +1,11 @@
-import React from "react"
-import { HashRouter } from "react-router-dom"
+import "core-js/es6/map";
+import "core-js/es6/set";
+import "raf/polyfill";
 
-import Foo from "./Foo"
+import React from "react";
+import ReactDOM from "react-dom";
 
-export default function App() {
-  return (
-    <HashRouter>
-      <React.Fragment>
-        <Foo></Foo>
-      </React.Fragment>
-    </HashRouter>
-  )
-}
+import App from "./App";
+
+const root = document.getElementById("root");
+ReactDOM.render(<App />, root);
