@@ -57,14 +57,21 @@ class WebpackReactComponentNamePlugin {
               }
             },
 
-            CallExpression(node, ancestors) {
+            CallExpression(node, state, ancestors) {
               // Matches: const Foo = React.forwardRef((props, ref) => { .. }
               if (
                 node &&
                 node.callee &&
-                node.callee.type == 'MemberExpression' &&
-                node.callee.object.name === 'React' &&
-                node.callee.property.name === 'forwardRef'
+                ((
+                  node.callee.type === 'MemberExpression' &&
+                  node.callee.object.name === 'React' &&
+                  node.callee.property.name === 'forwardRef'
+                ) ||
+                (
+                  state.forwardRefFunctionImported
+                  && node.callee.type === 'Identifier'
+                  && node.callee.name ==='forwardRef'
+                ))
               ) {
                 const variableDeclarator = ancestors.find(ancestor => ancestor.type === 'VariableDeclarator')
 
@@ -76,11 +83,18 @@ class WebpackReactComponentNamePlugin {
               else if (
                 node &&
                 node.callee &&
-                node.callee.type === 'MemberExpression' &&
-                node.callee.object &&
-                node.callee.object.name === 'React' &&
-                node.callee.property &&
-                ['createElement', 'memo'].includes(node.callee.property.name)
+                ((
+                  node.callee.type === 'MemberExpression' &&
+                  node.callee.object &&
+                  node.callee.object.name === 'React' &&
+                  node.callee.property &&
+                  ['createElement', 'memo'].includes(node.callee.property.name)
+                ) ||
+                (
+                  state.memoFunctionImported
+                  && node.callee.type === 'Identifier'
+                  && node.callee.name ==='memo'
+                ))
                 && ancestors
                 && ancestors.length > 1
               ) {
@@ -151,13 +165,27 @@ class WebpackReactComponentNamePlugin {
               ) {
                 addDisplayName(parser, node)
               }
+            },
+
+            ImportDeclaration(node, state) {
+              // Matches: import { memo, forwardRef } from 'react'
+              if (
+                  node
+                  && node.source
+                  && node.source.value === 'react'
+                  && node.specifiers
+                  && node.specifiers.length > 0
+              ) {
+                state.memoFunctionImported ||= node.specifiers.some(s => s.type === 'ImportSpecifier' && s.imported.name === 'memo' )
+                state.forwardRefFunctionImported ||= node.specifiers.some(s => s.type === 'ImportSpecifier' && s.imported.name === 'forwardRef' )
+              }
             }
           },
           {
             ...walk.base,
             // Add any objects that acorn-walk doesn't handle by default and thus would throw a ModuleParseError otherwise
             Import: () => {}
-          })
+          }, {})
         })
       })
     })
