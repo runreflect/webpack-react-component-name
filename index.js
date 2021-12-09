@@ -176,8 +176,8 @@ class WebpackReactComponentNamePlugin {
                   && node.specifiers
                   && node.specifiers.length > 0
               ) {
-                state.memoFunctionImported ||= node.specifiers.some(s => s.type === 'ImportSpecifier' && s.imported.name === 'memo' )
-                state.forwardRefFunctionImported ||= node.specifiers.some(s => s.type === 'ImportSpecifier' && s.imported.name === 'forwardRef' )
+                state.memoFunctionImported = state.memoFunctionImported || node.specifiers.some(s => s.type === 'ImportSpecifier' && s.imported.name === 'memo' )
+                state.forwardRefFunctionImported = state.forwardRefFunctionImported || node.specifiers.some(s => s.type === 'ImportSpecifier' && s.imported.name === 'forwardRef' )
               }
             }
           },
