@@ -125,7 +125,8 @@ describe('WebpackReactComponentNamePlugin', () => {
 
       expect(minifiedSource).toContain('.displayName="App"')
       expect(minifiedSource).toContain('.displayName="Dialog"')
-      expect(numDisplayNameProperties).toEqual(4)
+      expect(minifiedSource).toContain('.displayName="Dialog2"')
+      expect(numDisplayNameProperties).toEqual(5)
     }))
   })
 
@@ -184,7 +185,8 @@ describe('WebpackReactComponentNamePlugin', () => {
       expect(minifiedSource).toContain('.displayName="Button"')
       expect(minifiedSource).toContain('.displayName="MemoizedButton"')
       expect(minifiedSource).toContain('.displayName="MemoizedButton2"')
-      expect(numDisplayNameProperties).toEqual(6)
+      expect(minifiedSource).toContain('.displayName="MemoizedButton3"')
+      expect(numDisplayNameProperties).toEqual(7)
     }))
   })
 
