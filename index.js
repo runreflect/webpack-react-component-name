@@ -9,7 +9,7 @@ const VALID_FILE_SUFFIXES_REGEX = /\.(js|jsx|ts|tsx)$/
 // Normally React component names are minified during compilation.  This plugin
 // makes these component names available in production bundles by hooking into
 // Webpack's compilation process, traversing the AST looking for React component
-// definitions, and updating the emitted source code to populate the 
+// definitions, and updating the emitted source code to populate the
 // displayName property.  This is the property that, when populated, is used by the React Dev
 // Tools extension to determine the name of a component.
 //
@@ -46,7 +46,7 @@ class WebpackReactComponentNamePlugin {
                 node &&
                 node.id &&
                 node.id.type === 'Identifier' &&
-                node.init && node.init.callee && 
+                node.init && node.init.callee &&
                 node.init.callee.type === 'FunctionExpression' &&
                 node.init.callee.params &&
                 node.init.callee.params.length > 0 &&
@@ -101,7 +101,7 @@ class WebpackReactComponentNamePlugin {
 
                 if (parentAncestor && ['ReturnStatement', 'ArrowFunctionExpression'].includes(parentAncestor.type)) {
                   // ArrowFunctionExpression is present when no Babel plugins are used when transforming JSX
-                
+
                   const variableDeclaratorIdx = ancestors.findIndex(ancestor => ancestor.type === 'VariableDeclarator')
 
                   if (variableDeclaratorIdx != -1) {
@@ -115,7 +115,7 @@ class WebpackReactComponentNamePlugin {
             },
 
             FunctionDeclaration(node) {
-              // Matches: export default function Foo() with returning statement calling React.createElement
+              // Matches: export default function Foo() with returning statement
               if (node && node.id && node.id.type === 'Identifier' && node.body && node.body.body && node.body.body.filter(thing => thing.type === 'ReturnStatement')) {
                 const returnStatements = node.body.body.filter(thing => thing.type === 'ReturnStatement')
 
@@ -124,7 +124,13 @@ class WebpackReactComponentNamePlugin {
                   if (
                     returnStatement &&
                     returnStatement.argument.callee &&
-                    argumentCreatesElement(returnStatement.argument.callee)
+                    (
+                      // with returning statement calling React.createElement
+                      argumentCreatesElement(returnStatement.argument.callee) ||
+
+                      // with returning statement calling _jsxs (or) _jsx (as in Next.js)
+                      argumentJsx(returnStatement.argument.callee)
+                    )
                   ) {
                     addDisplayName(parser, node)
                   } else if ( // @emotion/babel-preset-css-prop replacing React.createElement with React.Fragment
@@ -200,15 +206,20 @@ function argumentCreatesElement(argument) {
     argument.property.name === 'createElement'
 }
 
+function argumentJsx(argument) {
+  return argument.type === "Identifier" &&
+    ["_jsxs", "_jsx"].includes(argument.name)
+}
+
 function addDisplayName(parser, node) {
   if (updatedNodes.has(node)) {
     return // Already added propertyName for this node
   }
-  
+
   const componentName = node.id.name
 
   if (componentName[0] == componentName[0].toLowerCase()) {
-    return // Assume lowercase names are helper functions and not Component classes 
+    return // Assume lowercase names are helper functions and not Component classes
   }
 
   const dep = new ModuleAppenderDependency(`;try{${componentName}.displayName="${componentName}";}catch(e){}`, node.range)
