@@ -1,6 +1,6 @@
 {
   "name": "webpack-react-component-name",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Makes React component names public on minified bundles",
   "main": "index.js",
   "scripts": {
