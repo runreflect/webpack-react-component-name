@@ -1,0 +1,23 @@
+{
+  "name": "nextjs-app",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.16.7",
+    "escodegen": "^2.0.0",
+    "next": "12.0.7",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
+  "devDependencies": {
+    "eslint": "8.6.0",
+    "eslint-config-next": "12.0.7",
+    "webpack": "^5.65.0",
+    "webpack-react-component-name": "^5.0.1"
+  }
+}
