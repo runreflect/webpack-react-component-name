@@ -25,7 +25,7 @@ describe('WebpackReactComponentNamePlugin', () => {
       expect(minifiedSource).toContain('.displayName="Footer"')
       expect(minifiedSource).toContain('.displayName="TodoList"')
       expect(minifiedSource).toContain('.displayName="TodoItem"')
-      expect(numDisplayNameProperties).toEqual(7) // Components, plus Provider, Consumer, and Router
+      expect(numDisplayNameProperties).toEqual(8)
     }))
   })
 
