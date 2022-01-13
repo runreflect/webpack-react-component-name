@@ -32,6 +32,7 @@
     "@babel/preset-react": "^7.16.0",
     "@emotion/babel-preset-css-prop": "^11.2.0",
     "@emotion/core": "^11.0.0",
+    "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.3.0",
     "@emotion/styled-base": "^11.0.0",
     "babel-loader": "^8.2.3",
