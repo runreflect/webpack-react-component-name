@@ -123,22 +123,22 @@ class WebpackReactComponentNamePlugin {
                   const returnStatement = returnStatements[0]
                   if (
                     returnStatement &&
-                    returnStatement.argument.callee &&
+                    returnStatement.argument?.callee &&
                     (
                       // with returning statement calling React.createElement
-                      argumentCreatesElement(returnStatement.argument.callee) ||
+                      argumentCreatesElement(returnStatement.argument?.callee) ||
 
                       // with returning statement calling _jsxs (or) _jsx (as in Next.js)
-                      argumentJsx(returnStatement.argument.callee)
+                      argumentJsx(returnStatement.argument?.callee)
                     )
                   ) {
                     addDisplayName(parser, node)
                   } else if ( // @emotion/babel-preset-css-prop replacing React.createElement with React.Fragment
                     returnStatement &&
-                    returnStatement.argument.callee &&
-                    returnStatement.argument.callee.name === '___EmotionJSX' &&
-                    returnStatement.argument.arguments &&
-                    returnStatement.argument.arguments.length > 0
+                    returnStatement.argument?.callee &&
+                    returnStatement.argument?.callee.name === '___EmotionJSX' &&
+                    returnStatement.argument?.arguments &&
+                    returnStatement.argument?.arguments.length > 0
                   ) {
                     addDisplayName(parser, node)
                   }
