@@ -36,7 +36,9 @@ class WebpackReactComponentNamePlugin {
       factory.hooks.parser.for('javascript/auto').tap('WebpackReactComponentNamePlugin', parser => {
         parser.hooks.program.tap("WebpackReactComponentNamePlugin", ast => {
           // Ignore dependency files
-          if (parser.state.current.resource == null || parser.state.current.resource.indexOf("node_modules") !== -1 || !VALID_FILE_SUFFIXES_REGEX.test(parser.state.current.resource.toLowerCase())) {
+          if (parser.state.current.resource == null 
+            || (!this.options.parseDependencies && parser.state.current.resource.indexOf("node_modules") !== -1) 
+            || !VALID_FILE_SUFFIXES_REGEX.test(parser.state.current.resource.toLowerCase())) {
             return
           }
 
