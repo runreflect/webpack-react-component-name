@@ -36,6 +36,21 @@ npm install webpack-react-component-name -save-dev
   ],
 ```
 
+## Options
+
+```json
+{
+  "parseDependencies": false
+}
+```
+
+### parseDependencies
+
+Type: `boolean`
+Default: `false`
+
+If set true, the plugin will name the components exported from node_modules.
+
 ## Troubleshooting
 
 As you probably know, there is more than one way to define a React component.  This
