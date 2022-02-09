@@ -19,7 +19,7 @@ const VALID_FILE_SUFFIXES_REGEX = /\.(js|jsx|ts|tsx)$/
 // https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
 class WebpackReactComponentNamePlugin {
   constructor(options) {
-    this.options = options
+    this.options = options ?? {}
   }
   apply(compiler) {
     compiler.hooks.compilation.tap(
