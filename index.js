@@ -1,6 +1,6 @@
 const walk = require("acorn-walk")
 const ModuleAppenderDependency = require('./lib/module-appender')
-const PureExpressionDependency = require("webpack/lib/dependencies/PureExpressionDependency")
+const OptionsParser = require('./lib/options-parser')
 
 // Keep track of the nodes we update so we don't make duplicate updates
 const updatedNodes = new Set()
@@ -19,7 +19,7 @@ const VALID_FILE_SUFFIXES_REGEX = /\.(js|jsx|ts|tsx)$/
 // https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Parser_API
 class WebpackReactComponentNamePlugin {
   constructor(options) {
-    this.options = options ?? {}
+    this.options = new OptionsParser().parse(options)
   }
   apply(compiler) {
     compiler.hooks.compilation.tap(
