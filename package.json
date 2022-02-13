@@ -46,7 +46,6 @@
     "react": "^16.13.1",
     "react-bootstrap": "^1.3.0",
     "react-dom": "^16.8.1",
-    "react-hook-utils": "^1.0.6",
     "react-router-dom": "^4.4.0-beta.6",
     "react-scripts": "2.1.5",
     "todomvc-app-css": "^2.1.2",
