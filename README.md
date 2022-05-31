@@ -40,7 +40,9 @@ npm install webpack-react-component-name -save-dev
 
 ```json
 {
-  "parseDependencies": false
+  "parseDependencies": false,
+  "include": [],
+  "exclude": []
 }
 ```
 
@@ -51,6 +53,22 @@ Default: `false`
 
 If set true, the plugin will name the components exported from node_modules.
 
+
+### include 
+Type: `(string | RegExp | (path: string) => boolean)[]` Default: `[]`
+
+If the path matches any of the elements in this array, it will be included if it isn't explicitly excluded.
+
+If the item is a `string`, it will use standard glob syntax. If the item is a Regular Expression, the path will be tested against it. If the item is a function, the path will be passed into it for testing. 
+
+### exclude 
+Type: `(string | RegExp | (path: string) => boolean)[]` Default: `[]`
+
+If the path matches any of the elements in this array, it will be excluded.
+
+If the item is a `string`, it will use standard glob syntax. If the item is a Regular Expression, the path will be tested against it. If the item is a function, the path will be passed into it for testing. 
+
+A truthy result will be excluded. 
 ## Troubleshooting
 
 As you probably know, there is more than one way to define a React component.  This
