@@ -1,6 +1,7 @@
 const utils = require('./utils')
 const constants = require('./constants')
 const _ = require('lodash')
+const fs = require('fs')
 
 const WebpackReactComponentNamePlugin = require('../index.js')
 const ModuleAppenderDependency = require('../lib/module-appender')
@@ -206,6 +207,30 @@ describe('WebpackReactComponentNamePlugin', () => {
     expect(minifiedSource).toContain('.displayName="TodoItem"')
     expect(numDisplayNameProperties).toEqual(3)
   })
+
+  it('handles include / exclude options', async () => {
+    // Note that this test only works with one flavor of Babel loader, so we're only testing one here
+    await utils.testWebpackPlugin(_.merge(_.cloneDeep(constants.TODOMVC_WEBPACK_CONFIG), {
+      plugins: [new WebpackReactComponentNamePlugin({
+        // Regex expressions work, also strings use minimatch to support glob patterns,
+        // and functions.
+        include: ['**/containers/*.js', /App\.js/], // If any of these pass, it will be included if it isn't excluded.
+        exclude: [i => i.includes('Item')] 
+      })],
+      output: {
+        path: constants.OUTPUT_DIR,
+        filename: 'limitedtodomvc.js'
+      },
+      module: constants.DEFAULT_BABEL_CONFIG,
+    }))
+
+    const minifiedSource = readSourceFile('limitedtodomvc.js')
+    const numDisplayNameProperties = (minifiedSource.match(DISPLAY_NAME_REGEX) || []).length
+
+    expect(minifiedSource).toContain('.displayName="App"')
+    expect(minifiedSource).toContain('.displayName="TodoList"')
+    expect(numDisplayNameProperties).toEqual(6) // Components plus Provider, Consumer, and Router
+  })
 })
 
 /**
@@ -218,4 +243,8 @@ function generateWebpackConfigs(baseWebpackConfig) {
       module: babelLoader,
     })
   })
+}
+
+function readSourceFile(filename) {
+  return fs.readFileSync(constants.OUTPUT_DIR + '/' + filename).toString()
 }

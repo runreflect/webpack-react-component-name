@@ -1,6 +1,7 @@
 const path = require('path')
 
 const OUTPUT_DIR = path.resolve(__dirname, '../dist/examples')
+exports.OUTPUT_DIR = OUTPUT_DIR
 
 const PRODUCTION_MODE = 'production'
 const BABEL_CONFIG_WITH_PRESENT_ENV = {
