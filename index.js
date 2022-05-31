@@ -37,7 +37,7 @@ class WebpackReactComponentNamePlugin {
         parser.hooks.program.tap("WebpackReactComponentNamePlugin", ast => {
           // Ignore dependency files
           if (parser.state.current.resource == null 
-            || !VALID_FILE_SUFFIXES_REGEX.test(parser.state.current.resource)
+            || !VALID_FILE_SUFFIXES_REGEX.test(parser.state.current.resource.toLowerCase())
             || (this.options.include.length && this.options.include.every(match => !match(parser.state.current.resource)))
             || (this.options.exclude.length && this.options.exclude.some(match => match(parser.state.current.resource)))) {
             return
