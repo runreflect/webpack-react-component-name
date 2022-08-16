@@ -74,6 +74,10 @@ class WebpackReactComponentNamePlugin {
                   state.forwardRefFunctionImported
                   && node.callee.type === 'Identifier'
                   && node.callee.name ==='forwardRef'
+                ) ||
+                (
+                  // with returning statement calling _jsxs (or) _jsx (as in Next.js or tsx)
+                  argumentJsx(node.callee)
                 ))
               ) {
                 const variableDeclarator = ancestors.find(ancestor => ancestor.type === 'VariableDeclarator')
