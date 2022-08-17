@@ -1,5 +1,3 @@
-import { globalReducer } from "react-hook-utils";
-
 import { guid } from "../utils";
 
 export const newTodo = label => ({
