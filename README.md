@@ -1,3 +1,5 @@
+*Note: This plugin is no longer supported*
+
 ## Overview
 
 **webpack-react-component-name** is a Webpack plugin that makes your custom
